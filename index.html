@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tonconnect-ui.min.js"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Caveat">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Balsamiq+Sans">
+    <title>Document</title>
+    <style>
+        /* cyrillic-ext */
+        @font-face {
+            font-family: 'Caveat';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/caveat/v18/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIipYSxP.woff2) format('woff2');
+            unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+        }
+        /* cyrillic */
+        @font-face {
+            font-family: 'Caveat';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/caveat/v18/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIGpYSxP.woff2) format('woff2');
+            unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+        }
+        /* latin-ext */
+        @font-face {
+            font-family: 'Caveat';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/caveat/v18/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIupYSxP.woff2) format('woff2');
+            unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+        }
+        /* latin */
+        @font-face {
+            font-family: 'Caveat';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/caveat/v18/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIWpYQ.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        #main {
+            display: block;
+        }
+        #balance {
+            display: none;
+        }
+        #market {
+            display: none;
+        }
+        #friend{
+            display: none;
+        }
+
+        #info {
+            display: none;
+        }
+        object{
+            pointers-events: none;
+            z-index: 0;
+        }
+        div{
+            position: relative;
+            z-index: 0;
+        }
+    img{
+        image-rendering: optimizeQuality;
+    }
+        #popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        #popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+
+        #popup-overlay2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        #popup2 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+
+    </style>
+</head>
+<body id="back" class="font-semibold w-full h-[100vh] px-[10px] py-[14px]" style="background-image: url('img/back3.png');background-size: 100% 100%;font-family: 'Caveat'">
+<div id="main" class="relative h-[90vh]">
+    <header class="flex items-start">
+        <div  onclick="showInfo()">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/book.svg" alt=""></object>
+        </div>
+        <div onclick="showPopup('popup-overlay')" class="ml-auto">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/plus.svg"  alt=""></object>
+        </div>
+        <div class="mx-[10px] flex relative items-center px-[12px] py-[10px] bg-white rounded-[32px]" style="box-shadow: 4px 4px 0px black">
+            <div onclick="user1()" class="absolute top-[-11px] right-[-10px]">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/reload.svg"  alt=""></object>
+            </div>            <object style="pointer-events:none" type="image/svg+xml" data="img/ton.svg" alt=""></object>
+            <div style="line-height: 18px;">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/balance.svg" alt=""></object>
+                <span id="balanceinfo" class="text-[18px]">0.25TON</span>
+            </div>
+        </div>
+        <div onclick="showPopup('popup-overlay2')">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/somebtn.svg"  alt=""></object>
+        </div>
+    </header>
+    <div id="23" class="mt-[70px] flex justify-between">
+        <div>
+            <img style="pointer-events:none" type="image/svg+xml" src="img/stressline1.svg" id="stresline" alt="">
+            <div onclick="showMarket()">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/stress.svg"  class="relative top-[-60px]" alt=""></object>
+            </div>
+        </div>
+
+        <div>
+            <img style="pointer-events:none" type="image/svg+xml" src="img/iceline1.svg" id="iceline" class="ml-auto" alt="">
+            <div onclick="showMarket()">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/ice.svg"  class="relative top-[-60px]" alt=""></object>
+            </div>
+        </div>
+    </div>
+    <footer class="flex bg-white rounded-[15px] px-[10px] py-[6px] absolute top-[92%] w-full items-center justify-between" style="box-shadow: 4px 4px 0px black">
+        <img src="img/home-main.svg" onclick="showMain()" alt="">
+        <img src="img/balance-footer.svg" onclick="showBalance()" alt="">
+        <img src="img/market.svg" onclick="showMarket()" alt="">
+        <img src="img/friends.svg" onclick="showFriend()" alt="">
+    </footer>
+</div>
+
+<div id="market" class="relative h-[90vh]">
+    <header class="flex items-end">
+        <div class="flex relative items-center px-[10px] py-[12px] bg-white rounded-[30px]" style="box-shadow: 4px 4px 0px black">
+            <div onclick="user1()" class="absolute top-[-11px] right-[-10px]">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/reload.svg"  alt=""></object>
+            </div>
+            <object style="pointer-events:none" type="image/svg+xml" data="img/ton.svg" alt=""></object>
+            <div class="ml-[5px]" style="line-height: 18px;">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/balance.svg" alt=""></object>
+                <span id="balanceinfo2" class="text-[18px]">0.25TON</span>
+            </div>
+        </div>
+
+        <div onclick="showPopup('popup-overlay')" class="ml-auto flex items-center px-[10px] py-[10px] bg-white rounded-[20px]" style="box-shadow: 4px 4px 0px black">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/plus2.svg" class="mr-[5px]" alt=""></object>
+            <span>ПОПОЛНИТЬ</span>
+        </div>
+
+    </header>
+    <div class="mt-[15px] max-h-[70vh] px-[12px] py-[35px] w-full rounded-[10px] bg-white" style="overflow-y: scroll;box-shadow: 4px 4px 0px black">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/Market2.svg" alt=""></object>
+        <div class="mt-[20px]">
+            <div class="my-[5px] flex items-center justify-between">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/1tovar.svg" alt=""></object>
+                <object style="pointer-events:none" type="image/svg+xml" data="img/1tovarcost.svg" alt=""></object>
+                <div onclick="buy(1)">
+                <object id="pr1" style="pointer-events:none" type="image/svg+xml" data="img/buy.svg"  alt=""></object>
+                </div>
+                </div>
+            <div class="my-[5px] flex items-center justify-between">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar2.svg" alt=""></object>
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar2cost.svg" alt=""></object>
+                <div onclick="buy(2)">
+                    <object id="pr2" style="pointer-events:none" type="image/svg+xml" data="img/buy.svg"  alt=""></object>
+                </div>
+            </div>
+            <div class="my-[5px] flex items-center justify-between">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar3.svg" alt=""></object>
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar3cost.svg" alt=""></object>
+                <div onclick="buy(3)">
+                    <object id="pr3" style="pointer-events:none" type="image/svg+xml" data="img/buy.svg"  alt=""></object>
+                </div>
+                </div>
+            <div class="my-[5px] flex items-center justify-between">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar4.svg" alt=""></object>
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar4cost.svg" alt=""></object>
+                <div onclick="buy(4)">
+                    <object id="pr4" style="pointer-events:none" type="image/svg+xml" data="img/lock.svg"  alt=""></object>
+                </div>
+            </div>
+            <div class="my-[5px] flex items-center justify-between">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar5.svg" alt=""></object>
+                <object style="pointer-events:none" type="image/svg+xml" data="img/tovar5cost.svg" alt=""></object>
+                <div onclick="buy(5)">
+                    <object id="pr5" style="pointer-events:none" type="image/svg+xml" data="img/lock.svg"  alt=""></object>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="flex bg-white rounded-[15px] px-[10px] py-[6px] absolute top-[92%] w-full items-center justify-between" style="box-shadow: 4px 4px 0px black">
+        <img src="img/home.svg" onclick="showMain()" alt="">
+        <img src="img/balance-footer.svg" onclick="showBalance()" alt="">
+        <img src="img/market-active.svg" onclick="showMarket()"  alt="">
+        <img src="img/friends.svg" onclick="showFriend()" alt="">
+    </footer>
+</div>
+
+<div id="balance" class="relative h-[90vh]">
+    <header class="flex items-end">
+        <div class="flex relative items-center px-[10px] py-[12px] bg-white rounded-[30px]" style="box-shadow: 4px 4px 0px black">
+            <div onclick="user1()" class="absolute top-[-11px] right-[-10px]">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/reload.svg"  alt=""></object>
+            </div>
+            <object style="pointer-events:none" type="image/svg+xml" data="img/ton.svg" alt=""></object>
+            <div class="ml-[5px]"  style="line-height: 18px;">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/balance.svg" alt=""></object>
+                <span id="balanceinfo3" class="text-[18px]">0.25TON</span>
+            </div>
+        </div>
+
+        <div onclick="showPopup('popup-overlay')" class="mx-[8px] flex items-center px-[10px] py-[10px] bg-white rounded-[20px]" style="box-shadow: 4px 4px 0px black">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/plus2.svg" alt=""></object>
+            <span class="text-[16px] ml-[5px]">ПОПОЛНИТЬ</span>
+        </div>
+
+        <div onclick="showPopup('popup-overlay2')" class="flex items-center px-[10px] py-[10px] bg-white rounded-[20px]" style="box-shadow: 4px 4px 0px black">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/withdraw.svg" alt=""></object>
+            <span class="text-[16px]">ВЫВОД</span>
+        </div>
+
+    </header>
+    <div class="flex items-center mt-[15px] px-[12px] font-semibold py-[15px] w-full rounded-[30px] bg-white" style="box-shadow: 4px 4px 0px black">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/wallet.svg" class="mr-[15px]" alt=""></object>
+        <span id="wallet" style="text-overflow: ellipsis;overflow: hidden">Кошелек: u7nrbfbUbfvgwy....Uw</span>
+    </div>
+    <div class="mt-[15px] max-h-[58vh] px-[18px] py-[20px] w-full rounded-[10px] bg-white" style="overflow-y: scroll;box-shadow: 4px 4px 0px black">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/operationtext.svg" alt=""></object>
+        <div class="mt-[20px]" id="trxs">
+
+        </div>
+    </div>
+
+    <footer class="flex bg-white rounded-[15px] px-[10px] py-[6px] absolute top-[92%] w-full items-center justify-between" style="box-shadow: 4px 4px 0px black">
+        <img src="img/home.svg" onclick="showMain()" alt="">
+        <img src="img/balance-icon.svg" onclick="showBalance()" alt="">
+        <img src="img/market.svg" onclick="showMarket()"  alt="">
+        <img src="img/friends.svg" onclick="showFriend()" alt="">
+    </footer>
+</div>
+
+<div id="friend" class="relative h-[90vh]">
+    <div class="px-[16px] font-semibold py-[15px] w-full rounded-[15px] bg-white" style="box-shadow: 4px 4px 0px black">
+        <div class="flex items-center w-full">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/friend.svg" alt=""></object>
+            <span id="friendcnt" class="font-normal text-[30px] py-[5px] ml-auto px-[12px] bg-[#A0E5E2] rounded-[12px]">
+                1
+            </span>
+        </div>
+
+        <div class="mt-[10px] flex items-center w-full">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/earn.svg" alt=""></object>
+            <div class="flex items-center py-[5px] ml-auto px-[12px] bg-[#A0E5E2] rounded-[12px]">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/ton.svg" class="mr-[5px]" alt=""></object>
+                <span id="friendearn" class="text-[30px] font-normal">0.001</span>
+            </div>
+        </div>
+    </div>
+    <div class="mt-[15px] max-h-[60vh] px-[12px] py-[20px] w-full rounded-[10px] bg-white" style="overflow-y: scroll;box-shadow: 4px 4px 0px black">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/text.svg" alt=""></object>
+        <div class="flex items-center justify-center mt-[16px]">
+            <div  onClick='window.open(`https://telegram.me/share/url?url=https://t.me/durev_povel_bot?start=${chatId}`)'>
+            <object style="pointer-events:none" type="image/svg+xml" data="img/del.svg" alt=""></object>
+            </div>
+            <div onclick="copy()">
+                <object style="pointer-events:none" type="image/svg+xml" data="img/copy.svg"  class="ml-[10px]" alt=""></object>
+            </div>
+            </div>
+    </div>
+
+    <footer class="flex bg-white rounded-[15px] px-[10px] py-[6px] absolute top-[92%] w-full items-center justify-between" style="box-shadow: 4px 4px 0px black">
+        <img src="img/home.svg" onclick="showMain()" alt="">
+        <img src="img/balance-footer.svg" onclick="showBalance()" alt="">
+        <img src="img/market.svg" onclick="showMarket()" alt="">
+        <img src="img/friend-active.svg" onclick="showFriend()" alt="">
+    </footer>
+</div>
+
+<div id="info" class="relative h-[90vh]" style="font-family: 'Balsamiq+Sans'">
+    <div class="relative mt-[0x] max-h-[75vh] px-[12px] py-[20px] w-full rounded-[10px] bg-white" style="overflow-y: scroll;box-shadow: 4px 4px 0px black">
+        <img src="img/close.svg" class="absolute right-[0] top-[14px] mr-[10px]" onclick="showMain()" alt="">
+
+        <img src="img/Инфо.svg" alt="">
+        <p class="mt-[20px] font-normal">
+            <b>Повел Дурев</b> величайший предприниматель всех времен во всем мире. Он директор Телеграм, компании, которая передает сообщения по воздуху с помощью электричества. Он президент TON, компании с интернет деньгами. Его работа в том, чтобы делать миллиарды TON. Наша работа в том, чтобы делать его счастливым.
+            <br>
+            <br><b>💠 Секрет счастья:</b>
+            <br>1. Купи лед в магазине и избавь Повла от стресса.
+            <br>2. <del>Анжуманя</del>. Жди пока лед расстает.
+            <br>3. Дурев дарит TON.
+            <br>4. Повтори пункты 1-3.
+            <br>
+            <br> В зависимости от жары в Дубайске лед может таять по разному, поэтому наша задача поддерживать 🛁 ванну всегда прохладной.
+            Чтобы купить лед 🧊, для начала привяжи кошелек и пополни баланс. Помни, за один раз можно купить только один лед, так что подходи к покупке внимательно и не заставляй Повлика перегреваться.🏜
+            <br>
+            <br><b>Рейты:</b>
+            <br>🚰 Ледяная вода: 100% к депозиту.
+            <br>❄️ Маленький кубик льда: 50% к депозиту.
+            <br>🧊 Два кубика льда: 50% к депозиту.
+            <br>💎 Горсть льда: 30% к депозиту.
+            <br>🗻 Айсберг: 25% к депозиту.
+            <br>
+            <br>$durev создан для сильных духом и хороших людей. Покупая $durev, вы способствуете улучшению мира за счет появления тонн мемов. $DUREV никак не связан с Павлом Дуровым. Это просто мем-монета без сущностной ценности и ожиданий большого финансового успеха.
+            <br>
+            <br>(c) 2024 повел дурев $DUREV. Все права защищены.
+
+        </p>
+    </div>
+
+    <footer class="flex bg-white rounded-[15px] px-[10px] py-[6px] absolute top-[92%] w-full items-center justify-between" style="box-shadow: 4px 4px 0px black">
+        <img src="img/home.svg" onclick="showMain()" alt="">
+        <img src="img/balance-footer.svg" onclick="showBalance()" alt="">
+        <img src="img/market.svg" onclick="showMarket()" alt="">
+        <img src="img/friends.svg" onclick="showFriend()" alt="">
+    </footer>
+</div>
+
+
+
+<div id="popup-overlay">
+
+    <div id="popup" class="w-[80%] relative bg-white p-[6px]" style="box-shadow: 4px 4px 0px black">
+        <img src="img/close.svg" class="absolute right-[0] top-[10px] mr-[10px]" onclick="hiddenPopup('popup-overlay')" alt="">
+        <img src="img/add.svg" class="mx-auto mt-[6px]" alt="">
+        <input type="text" id="valuedep" placeholder="мин 0.1" class="bg-[#A0E5E2] w-full rounded-[22px] py-[6px] px-[10px] mt-[6px]">
+        <div onclick="deposit()">
+            <object style="pointer-events:none" type="image/svg+xml" data="img/addbtn.svg" class="mx-auto mt-[20px]" alt=""></object>
+        </div>
+        </div>
+</div>
+
+
+<div id="popup-overlay2">
+
+    <div id="popup2" class="w-[80%] relative bg-white p-[6px]" style="box-shadow: 4px 4px 0px black">
+        <img src="img/close.svg" class="absolute right-[0] top-[10px] mr-[10px]" onclick="hiddenPopup('popup-overlay2')" alt="">
+        <img src="img/wid.svg" class="mx-auto mt-[6px]" alt="">
+        <input type="text" id="widthval" placeholder="мин 0.1" class="bg-[#A0E5E2] w-full rounded-[22px] py-[6px] px-[10px] mt-[6px]">
+        <div onclick="widthDep()">
+        <object style="pointer-events:none" type="image/svg+xml" data="img/widbtn.svg"  class="mx-auto mt-[20px]" alt=""></object>
+        </div>
+        </div>
+</div>
+</body>
+<script src="api.js"></script>
+<script>
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://arturnew1.github.io/manifest-app/manifest.json',
+    });
+
+
+    let wallet = '';
+    let isBuyClick = false;
+    let isWidthClick = false;
+    let isDepClick = false;
+    let user_balance = 0;
+    let user_friends = 0;
+    let user_earn = 0;
+    let trxHistory = [];
+    let isIce = [];
+    let chatId = 1535022702;
+    let minWidth = 0;
+    let pr = [false, false, false, false, false];
+
+    function connection(){
+        if(!tonConnectUI.connected){
+            connectToWallet().then(() => {
+                addWallet(TON_CONNECT_UI.toUserFriendlyAddress(tonConnectUI.wallet.account.address), chatId);
+                document.getElementById('wallet').innerHTML = `Кошелек: ${TON_CONNECT_UI.toUserFriendlyAddress(tonConnectUI.wallet.account.address)}`
+            })
+        } else {
+            tonConnectUI.disconnect().then(() => {
+
+            });
+        }
+    }
+    async function deposit(){
+        getSetting()
+        user().then().catch(e => {})
+        if(!tonConnectUI.connected){
+            connection()
+        } else if(!isDepClick){
+            isDepClick = true;
+            let value = document.getElementById('valuedep').value;
+            if(!Number(value) || minWidth > Number(value)){
+                isDepClick = false
+                return alert(`Минимальная сумма ${minWidth}.`)
+            }
+            tonConnectUI.sendTransaction({
+                validUntil:  new Date().getTime() + 3600,
+                network: "-239",
+                messages: [
+                    {
+                        address: 'UQAp1PGK7dOvoce2rM0uuvf7VLwCFQICiMqf8EKucpVpzoEo', // destination address
+                        amount: 1000000000*Number(value)
+                    }
+                ]
+            })
+                .then(async res => {
+                    console.log(res)
+                    isDepClick = false
+                    await depositA(chatId, Number(value), res.boc);
+                    user().then().catch(e => {})
+                    showMain()
+                    hiddenPopup('popup-overlay')
+                }).catch(err => {
+                isDepClick = false
+            })
+        }
+    }
+
+    async function widthDep(){
+        getSetting()
+        if(!isWidthClick){
+            isWidthClick = true;
+            let val = document.getElementById('widthval').value;
+            console.log(val, minWidth);
+            if(user_balance < val){
+                isWidthClick = false;
+                return alert('Недостаточно средств.')
+            }
+            if(val < minWidth){
+                isWidthClick = false;
+                alert(`Минимальная сумма ${val}.`);
+                return '';
+            }
+
+            await reqTrx(chatId, val).catch(e => {});
+            hiddenPopup('popup-overlay2')
+            user().then().catch(e => {})
+            showMain();
+        }
+    }
+    async function connectToWallet() {
+        const connectedWallet = await tonConnectUI.connectWallet();
+        // Do something with connectedWallet if needed
+        console.log(connectedWallet);
+    }
+    async function user(){
+        let user = await getUser(chatId);
+        user_balance = user.balance.toFixed(3);
+        user_friends = user.friends;
+        user_earn = user.refferal_balance.toFixed(3);
+        isIce = user.iceBuy > 0;
+        if(isIce){
+            document.getElementById('stresline').data = 'img/stressline1.svg'
+            document.getElementById('iceline').src = 'img/icefull.svg';
+            document.getElementById('back').style.backgroundImage = 'url("img/back2.png")'
+        } else {
+            document.getElementById('iceline').data = 'img/iceline1.svg'
+            document.getElementById('stresline').src = 'img/stresfull.svg'
+            document.getElementById('back').style.backgroundImage = 'url("img/back.png")'
+        }
+
+        document.getElementById('balanceinfo').innerHTML = `${user_balance}TON`;
+        document.getElementById('balanceinfo2').innerHTML = `${user_balance}TON`;
+        document.getElementById('balanceinfo3').innerHTML = `${user_balance}TON`;
+        document.getElementById('friendcnt').innerHTML = user_friends;
+        document.getElementById('friendearn').innerHTML = `${user_earn}`;
+    }
+
+    async function getTrx(){
+        let trxs = await getTrxs(chatId);
+        let num = 1;
+        document.getElementById('trxs').innerHTML = '';
+        for(let trx of trxs['trx']){
+            let el = document.createElement('div');
+            el.className = 'my-[8px] flex items-center justify-between';
+            el.innerHTML = `<span class="font-semibold">${num}</span>
+                <span>${new Date(trx['datetime']).toLocaleDateString()}</span>
+                <div class="flex items-center">
+                    <img src="img/ton.svg" alt="">
+                    <span class="font-simebold ml-[10px] text-[18px]">${trx['cost']}TON</span>
+                </div>
+                <span>${trx['is_done'] == 1 ? 'Завершен' : 'В процессе'}</span>
+                <img src="${!trx['type'] ? 'img/add%20arrow.svg' : 'img/wrd.svg'}" alt="">`
+            document.getElementById('trxs').appendChild(el);
+            num+=1;
+        }
+
+    }
+
+    async function getSetting(){
+        let setting = await getSettings()
+        minWidth = setting.min_width
+        pr[0] = setting.pr1
+        pr[1] = setting.pr2
+        pr[2] = setting.pr3
+        pr[3] = setting.pr4
+        pr[4] = setting.pr5
+        document.getElementById('pr1').data = pr[0] ? 'img/buy.svg' : 'img/lock.svg'
+        document.getElementById('pr2').data = pr[1] ? 'img/buy.svg' : 'img/lock.svg'
+        document.getElementById('pr3').data = pr[2] ? 'img/buy.svg' : 'img/lock.svg'
+        document.getElementById('pr4').data = pr[3] ? 'img/buy.svg' : 'img/lock.svg'
+        document.getElementById('pr5').data = pr[4] ? 'img/buy.svg' : 'img/lock.svg'
+
+    }
+
+    async function buy(id){
+        if(!pr[id-1]){
+            return;
+        }
+        if(isIce){
+            return alert("Вы уже купили лед.")
+        }
+
+        let answer = await buyIce(chatId, id).then((res) => {
+            if(res['err']){
+                return alert("Недостаточно денег.")
+            }
+            console.log(res,123);
+            user().then(() => {
+
+                showMain();
+                alert("Успешная покупка.")
+            })
+        console.log(answer,555)
+
+        }).catch(e => {})
+    }
+
+    function hidden(){
+        document.getElementById('main').style.display = 'none';
+        document.getElementById('market').style.display = 'none';
+        document.getElementById('info').style.display = 'none';
+        document.getElementById('friend').style.display = 'none';
+        document.getElementById('balance').style.display = 'none';
+    }
+
+    function showMain(){
+        hidden();
+        user();
+        document.getElementById('main').style.display = 'block';
+    }
+    function showMarket(){
+        hidden();
+        user();
+        document.getElementById('market').style.display = 'block';
+    }
+    function showBalance(){
+        hidden();
+        getTrx();
+        document.getElementById('balance').style.display = 'block';
+    }
+
+    function showFriend(){
+        hidden();
+        user();
+        document.getElementById('friend').style.display = 'block';
+    }
+
+    function showInfo(){
+        hidden();
+        user();
+        document.getElementById('info').style.display = 'block';
+    }
+    function showPopup(id){
+        document.getElementById(id).style.display = 'block';
+    }
+
+    function hiddenPopup(id){
+        document.getElementById(id).style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const myParam = urlParams.get('user_id');
+        chatId = myParam
+        if(window.screen.width > 440){
+            document.getElementById('23').style.marginTop = '5px'
+            document.getElementsByTagName('footer')[0].style.top = '105%'
+            document.getElementsByTagName('footer')[1].style.top = '105%'
+            document.getElementsByTagName('footer')[2].style.top = '105%'
+            document.getElementsByTagName('footer')[3].style.top = '105%'
+            document.getElementsByTagName('footer')[4].style.top = '105%'
+            document.body.style.backgroundSize = 'cover'
+            let els = document.getElementsByName('footer')
+            for(let i of els){
+                i.className = "flex bg-white rounded-[15px] px-[10px] py-[6px]  top-[86%] w-full items-center justify-between"
+                i.style.width = "100%"
+                i.style.position = 'relative'
+            }
+
+
+        }
+        getSetting();
+        setTimeout(() => {
+            user().then(res =>{
+                showMain()
+            })
+
+
+        }, 1000)
+        setTimeout(() => {
+            let tg = window?.Telegram?.WebApp;
+            tg?.expand();
+            if(!tonConnectUI.connected){
+                document.getElementById('wallet').innerHTML = `Wallet: NOT CONNECTED`
+
+            } else {
+                document.getElementById('wallet').innerHTML = `Wallet: ${TON_CONNECT_UI.toUserFriendlyAddress(tonConnectUI.wallet.account.address)}`
+
+            }
+        }, 2000)
+    })
+    function copy(){
+        navigator.clipboard.writeText(`https://t.me/durev_povel_bot?start=${chatId}`)
+            .then(() => {
+                alert('linked copied')
+            })
+            .catch(err => {
+                console.log('Something went wrong', err);
+            });
+
+    }
+    function user1(){
+        window.location.reload();
+    }
+</script>
+</html>
